@@ -13,6 +13,7 @@ import imaplib
 
 VERBOSITY = 1
 
+
 class MailCheck(object):
     """
     Logs into a gmail account (env AUTO_ADDR, AUTO_PASS) and looks for mails
@@ -27,11 +28,14 @@ class MailCheck(object):
             print(msg)
 
     def login(self):
-        mail = imaplib.IMAP4_SSL('imap.gmail.com')
-        mail.login(os.environ['AUTO_ADDR'], os.environ['AUTO_PASS'])
-        mail.select('inbox')
-        self._log(1, 'Logging in as: {}'.format(os.environ['AUTO_ADDR']))
-        return mail
+        try:
+            mail = imaplib.IMAP4_SSL('imap.gmail.com')
+            mail.login(os.environ['AUTO_ADDR'], os.environ['AUTO_PASS'])
+            mail.select('inbox')
+            self._log(1, 'Logging in as: {}'.format(os.environ['AUTO_ADDR']))
+            return mail
+        except:
+            self._log(1, 'error logging in')
 
     def get_commands(self, mail):
         result, data = mail.uid('search', None, '(HEADER Subject "CMD:")')
@@ -41,23 +45,36 @@ class MailCheck(object):
 
         msg = email.message_from_string(raw)
         sender = email.utils.parseaddr(msg['From'][-1]
-        if msg['From'] == os.environ['AUTO_FROM']:
+        if sender == os.environ['AUTO_FROM']:
+            self._log(6, 'passed sender test')
             if msg['Subject'].startswith('CMD:'):
+                self._log(6, 'passed subject test')
                 print('From: {}'.format(msg['From']))
                 print('Subj: {}'.format(msg['Subject']))
                 print('Rcvd: {}'.format(msg['Date']))
                 text = self.get_first_text_block(msg)
                 print(text)
+                return text
+
+    def process_commands(self, cmd):
+        self._log(1, 'here is where we process our commands')
 
     def get_first_text_block(self, msg):
         maintype = msg.get_content_maintype()
         if maintype == 'multipart':
+            self._log(6, 'multipart email')
             for part in msg.get_payload():
                 if part.get_content_maintype() == 'text':
                     return part.get_payload()
         elif maintype == 'text':
+            self._log(6, 'text email')
             return msg.get_payload()
 
     def logout(self, msg):
-        msg.close()
-        msg.logout()
+        try:
+            msg.close()
+            msg.logout()
+        except:
+            self._log(1, 'error logging out')
+
+
