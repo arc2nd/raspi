@@ -10,6 +10,7 @@
 import os
 import email
 import imaplib
+import datetime
 
 VERBOSITY = 1
 
@@ -22,7 +23,7 @@ class MailCheck(object):
     """
     def __init__(self):
         self._log(1, 'Initializing MailCheck object')
-
+        self.date_of_last = datetime.datetime.now()
     def _log(self, priority, msg):
         if priority <= VERBOSITY:
             print(msg)
@@ -47,7 +48,7 @@ class MailCheck(object):
         sender = email.utils.parseaddr(msg['From'][-1]
         if sender == os.environ['AUTO_FROM']:
             self._log(6, 'passed sender test')
-            if msg['Subject'].startswith('CMD:'):
+            if msg['Subject'].startswith(os.environ['AUTO_PREFIX']):
                 self._log(6, 'passed subject test')
                 print('From: {}'.format(msg['From']))
                 print('Subj: {}'.format(msg['Subject']))
@@ -58,6 +59,9 @@ class MailCheck(object):
 
     def process_commands(self, cmd):
         self._log(1, 'here is where we process our commands')
+        if cmd.startswith('print:')
+            string = cmd.split(':')
+            print('print cmd: {}'.format(string))
 
     def get_first_text_block(self, msg):
         maintype = msg.get_content_maintype()
@@ -77,4 +81,13 @@ class MailCheck(object):
         except:
             self._log(1, 'error logging out')
 
-
+if __name__ == '__main__':
+    os.environ['AUTO_ADDR'] = '<email>.auto@gmail.com'
+    os.environ['AUTO_PASS'] = '<password>'
+    os.environ['AUTO_FROM'] = '<email>@gmail.com'
+    os.environ['AUTO_PREFIX'] = 'CMD:'
+    mc = MailCheck()
+    M = mc.login()
+    c = mc.get_commands(M)
+    mc.logout(M)
+    mc.process_commands(c)
