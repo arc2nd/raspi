@@ -11,6 +11,8 @@ import os
 import email
 import imaplib
 import datetime
+import imp
+import inspect
 
 VERBOSITY = 1
 
@@ -24,9 +26,19 @@ class MailCheck(object):
     def __init__(self):
         self._log(1, 'Initializing MailCheck object')
         self.date_of_last = datetime.datetime.now()
+        self.modules = {}
+        self.load_commands()
+
     def _log(self, priority, msg):
         if priority <= VERBOSITY:
             print(msg)
+
+    def run(self):
+        M = self.login()
+        c = self.get_commands(M)
+        self._log(1, c)
+        self.logout(M)
+        self.process_commands(c)
 
     def login(self):
         try:
@@ -45,7 +57,8 @@ class MailCheck(object):
         raw = data[0][1]
 
         msg = email.message_from_string(raw)
-        sender = email.utils.parseaddr(msg['From'][-1]
+        sender = email.utils.parseaddr(msg['From'])[-1]
+        self._log(1, 'Sender: {}'.format(sender))
         if sender == os.environ['AUTO_FROM']:
             self._log(6, 'passed sender test')
             if msg['Subject'].startswith(os.environ['AUTO_PREFIX']):
@@ -54,14 +67,49 @@ class MailCheck(object):
                 print('Subj: {}'.format(msg['Subject']))
                 print('Rcvd: {}'.format(msg['Date']))
                 text = self.get_first_text_block(msg)
-                print(text)
+                #print(text)
                 return text
+
+    def load_commands(self):
+        cmd_dir = os.path.join(os.getcwd(), 'commands')
+        all_files = os.listdir(cmd_dir)
+        self._log(6, all_files)
+        py_files = []
+        for tf in all_files:
+            tf_path = os.path.join(cmd_dir, tf)
+            self._log(6, os.path.isfile(tf_path))
+            if os.path.isfile(tf_path) and tf_path.endswith('.py'):
+                py_files.append(tf_path)
+                self._log(6, tf_path)
+
+        pysource = None
+        for srctype in imp.get_suffixes():
+            if srctype[0] == '.py':
+                pysource = srctype
+
+        loaded_func_names = []
+        for tf in py_files:
+            py_name = os.path.splitext(os.path.basename(tf))[0]
+            self._log(6, py_name)
+            with open(tf, 'r') as fp:
+                module = imp.load_module(py_name, fp, tf, pysource)
+                self._log(6, module)
+            for (name, obj) in module.__dict__.items():
+                self._log(6, 'is func: {}'.format(inspect.isfunction(obj)))
+                self._log(6, 'name: {}\npyname: {}'.format(name, py_name))
+                if inspect.isfunction(obj) and name == py_name:
+                    self._log(6, name)
+                    if name not in loaded_func_names:
+                        self.modules[name] = obj
+                        self._log(1, 'loaded command: {}'.format(name))
+                        loaded_func_names.append(name)
 
     def process_commands(self, cmd):
         self._log(1, 'here is where we process our commands')
-        if cmd.startswith('print:')
-            string = cmd.split(':')
-            print('print cmd: {}'.format(string))
+        if len(cmd):
+            action, data = cmd.split('%')
+            if action in self.modules:
+                self.modules[action](data)
 
     def get_first_text_block(self, msg):
         maintype = msg.get_content_maintype()
@@ -87,7 +135,4 @@ if __name__ == '__main__':
     os.environ['AUTO_FROM'] = '<email>@gmail.com'
     os.environ['AUTO_PREFIX'] = 'CMD:'
     mc = MailCheck()
-    M = mc.login()
-    c = mc.get_commands(M)
-    mc.logout(M)
-    mc.process_commands(c)
+    mc.run()
