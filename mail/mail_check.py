@@ -107,9 +107,10 @@ class MailCheck(object):
     def process_commands(self, cmd):
         self._log(1, 'here is where we process our commands')
         if len(cmd):
-            action, data = cmd.split('%')
+            action, arg_string = cmd.split('%')
+            arg_list = arg_string.strip().split(',')
             if action in self.modules:
-                self.modules[action](data)
+                self.modules[action](*arg_list)
 
     def get_first_text_block(self, msg):
         maintype = msg.get_content_maintype()
