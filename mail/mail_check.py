@@ -109,8 +109,8 @@ class MailCheck(object):
         if len(cmd):
             action, arg_string = cmd.split('%')
             arg_list = arg_string.strip().split(',')
-            if action in self.modules:
-                self.modules[action](*arg_list)
+            if action.lower() in self.modules:
+                self.modules[action.lower()](*arg_list)
 
     def get_first_text_block(self, msg):
         maintype = msg.get_content_maintype()
