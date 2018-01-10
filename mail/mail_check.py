@@ -34,6 +34,9 @@ class MailCheck(object):
             print(msg)
 
     def run(self):
+        """
+        The login, get_commands, logout, process_commands sequence
+        """
         M = self.login()
         c = self.get_commands(M)
         self._log(1, c)
@@ -41,6 +44,10 @@ class MailCheck(object):
         self.process_commands(c)
 
     def login(self):
+        """
+        login to the auto.email account using imaplib.
+        Returns: an IMAP4_SSL object
+        """
         try:
             mail = imaplib.IMAP4_SSL('imap.gmail.com')
             mail.login(os.environ['AUTO_ADDR'], os.environ['AUTO_PASS'])
@@ -51,6 +58,11 @@ class MailCheck(object):
             self._log(1, 'error logging in')
 
     def get_commands(self, mail):
+        """
+        Open up the auto.email account and read unread messages 
+        that start with the env(AUTO_PREFIX)
+        Returns: the text of the message
+        """
         result, data = mail.uid('search', None, '(HEADER Subject "{}")'.format(os.environ['AUTO_PREFIX']))
         match = data[0].split()[-1]
         result, data = mail.uid('fetch', match, '(RFC822)')
@@ -71,6 +83,11 @@ class MailCheck(object):
                 return text.strip()
 
     def load_commands(self):
+        """
+        Search the 'commands' directory and find any command 'plugin'
+        python files. Do some simple checking and 'register' them
+        with the class
+        """
         cmd_dir = os.path.join(os.getcwd(), 'commands')
         all_files = os.listdir(cmd_dir)
         self._log(6, all_files)
@@ -105,6 +122,11 @@ class MailCheck(object):
                         loaded_func_names.append(name)
 
     def process_commands(self, cmd):
+        """
+        We previously grabbed our commands from email. Here is where 
+        we determing if the email refers to a command that this computer
+        can execute. If it can, it will
+        """
         self._log(1, 'here is where we process our commands')
         if len(cmd):
             action, arg_string = cmd.split('%')
@@ -113,6 +135,9 @@ class MailCheck(object):
                 self.modules[action.lower()](*arg_list)
 
     def get_first_text_block(self, msg):
+        """
+        Get the first text block in a potentially multipart email message
+        """
         maintype = msg.get_content_maintype()
         if maintype == 'multipart':
             self._log(6, 'multipart email')
@@ -124,6 +149,9 @@ class MailCheck(object):
             return msg.get_payload()
 
     def logout(self, msg):
+        """
+        logout of the auto.email account
+        """
         try:
             msg.close()
             msg.logout()
