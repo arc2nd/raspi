@@ -3,9 +3,9 @@
 import os
 import commands
 
-def dl(url):
-    print('DL: {}'.format(url))
-    cmd = 'youtube-dl {}'.format(url)
+def convert(url):
+    print('Convert: {}'.format(url))
+    cmd = 'python {} -u {}'.format(os.path.expanduser('~/scripts/convertToAudio.py'), url)
     print('cmd: {}'.format(url))
     status, output = commands.getstatusoutput(cmd)
     print('Status: {}'.format(status))

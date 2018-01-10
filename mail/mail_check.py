@@ -68,7 +68,7 @@ class MailCheck(object):
                 print('Rcvd: {}'.format(msg['Date']))
                 text = self.get_first_text_block(msg)
                 #print(text)
-                return text
+                return text.strip()
 
     def load_commands(self):
         cmd_dir = os.path.join(os.getcwd(), 'commands')
