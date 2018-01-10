@@ -51,7 +51,7 @@ class MailCheck(object):
             self._log(1, 'error logging in')
 
     def get_commands(self, mail):
-        result, data = mail.uid('search', None, '(HEADER Subject "CMD:")')
+        result, data = mail.uid('search', None, '(HEADER Subject "{}")'.format(os.environ['AUTO_PREFIX']))
         match = data[0].split()[-1]
         result, data = mail.uid('fetch', match, '(RFC822)')
         raw = data[0][1]
