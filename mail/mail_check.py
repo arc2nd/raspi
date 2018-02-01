@@ -8,13 +8,27 @@
 
 
 import os
+import json
 import email
 import imaplib
 import imp
 import inspect
 import datetime
+import subprocess
 
 VERBOSITY = 1
+
+
+def get_creds(path):
+    cmd = "openssl des3 -salt -d -in %s -pass pass:%s" % (path, os.path.basename(path))
+    proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    output = proc.communicate()[0]
+    if (output):
+        try:
+            j = json.loads(output)
+            return j
+        except:
+            return output
 
 
 class MailCheck(object):
@@ -190,8 +204,9 @@ class MailCheck(object):
 if __name__ == '__main__':
     import sys
     import json
-    with open('/home/pi/scripts/raspi/mail/envs.json', 'r') as fp:
-        envs = json.load(fp)
+    #with open('/home/pi/scripts/raspi/mail/envs.json', 'r') as fp:
+    #    envs = json.load(fp)
+    envs = get_creds('/home/pi/scripts/raspi/mail/envs.crypt')
     os.environ.update(envs)
     #os.environ['AUTO_ADDR'] = '<email>.auto@gmail.com'
     #os.environ['AUTO_PASS'] = '<password>'
