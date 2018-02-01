@@ -10,9 +10,9 @@
 import os
 import email
 import imaplib
-import datetime
 import imp
 import inspect
+import datetime
 
 VERBOSITY = 1
 
@@ -25,7 +25,10 @@ class MailCheck(object):
     """
     def __init__(self):
         self._log(1, 'Initializing MailCheck object')
-        self.date_of_last = datetime.datetime.now()
+        if os.path.exists('/home/pi/scripts/raspi/mail/date.txt'):
+            self.date_of_last = self.convert_time_to_dt(self.get_time())
+        else:
+            self.date_of_last = datetime.datetime.now()
         self.modules = {}
         self.load_commands()
 
@@ -57,6 +60,25 @@ class MailCheck(object):
         except:
             self._log(1, 'error logging in')
 
+    def set_time(self, msg):
+        time = msg['Date']
+        with open('/home/pi/scripts/raspi/mail/date.txt', 'w') as fp:
+            fp.write(time)
+
+    def get_time(self):
+        with open('/home/pi/scripts/raspi/mail/date.txt', 'r') as fp:
+            date = fp.read()
+        return date.strip()
+
+    def convert_time_to_dt(self, date):
+        dt = datetime.datetime.strptime(date[:-6], '%a, %d %b %Y %H:%M:%S')
+        return dt
+
+    def get_now(self):
+        import pytz
+        now = datetime.datetime.now(pytz.timezone('US/Pacific')).strftime('%a, %d %b %Y %H:%M:%S %z')
+        return datetime.datetime.now()
+
     def get_commands(self, mail):
         """
         Open up the auto.email account and read unread messages 
@@ -78,8 +100,14 @@ class MailCheck(object):
                 print('From: {}'.format(msg['From']))
                 print('Subj: {}'.format(msg['Subject']))
                 print('Rcvd: {}'.format(msg['Date']))
+                time = self.convert_time_to_dt(msg['Date'].strip())
+                self._log(1, 'time: {}\nlast: {}\n'.format(time, self.date_of_last))
+                if time <= self.date_of_last:
+                    self._log(1, 'time of last operation is greater than time of last message')
+                    return 'test%past_time'
                 text = self.get_first_text_block(msg)
                 #print(text)
+                self.set_time(msg)
                 return text.strip()
 
     def load_commands(self):
@@ -88,7 +116,8 @@ class MailCheck(object):
         python files. Do some simple checking and 'register' them
         with the class
         """
-        cmd_dir = os.path.join(os.getcwd(), 'commands')
+        #cmd_dir = os.path.join(os.getcwd(), 'commands')
+        cmd_dir = '/home/pi/scripts/raspi/mail/commands'
         all_files = os.listdir(cmd_dir)
         self._log(6, all_files)
         py_files = []
@@ -159,9 +188,14 @@ class MailCheck(object):
             self._log(1, 'error logging out')
 
 if __name__ == '__main__':
-    os.environ['AUTO_ADDR'] = '<email>.auto@gmail.com'
-    os.environ['AUTO_PASS'] = '<password>'
-    os.environ['AUTO_FROM'] = '<email>@gmail.com'
-    os.environ['AUTO_PREFIX'] = 'CMD:'
+    import sys
+    import json
+    with open('/home/pi/scripts/raspi/mail/envs.json', 'r') as fp:
+        envs = json.load(fp)
+    os.environ.update(envs)
+    #os.environ['AUTO_ADDR'] = '<email>.auto@gmail.com'
+    #os.environ['AUTO_PASS'] = '<password>'
+    #os.environ['AUTO_FROM'] = '<email>@gmail.com'
+    #os.environ['AUTO_PREFIX'] = 'CMD:'
     mc = MailCheck()
-    mc.run()
+    sys.exit(mc.run())
