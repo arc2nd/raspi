@@ -1,0 +1,5 @@
+{
+    "claw_servo_pin": 1, 
+    "left_motor_pin": 2, 
+    "right_motor_pin": 3
+}
