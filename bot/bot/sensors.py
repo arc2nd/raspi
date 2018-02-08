@@ -4,5 +4,6 @@
 
 
 class Sensor(object):
-    def __init__(self):
+    def __init__(self, pin):
+        self.pin = pin
         return

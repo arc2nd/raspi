@@ -31,14 +31,29 @@ class Bot(object):
 
         for item in self.config_dict:
             if 'pin' in item.lower():
+                name = item.strip('_pin')
                 if 'servo' in item.lower():
-                    self.servos[item] = servos.Servo(self.config_dict[item])
+                    self.servos[name] = servos.Servo(self.config_dict[item])
                 if 'motor' in item.lower():
-                    self.motors[item] = motors.Motor(self.config_dict[item])
+                    self.motors[name] = motors.Motor(self.config_dict[item])
                 if 'light' in item.lower():
-                    self.lights[item] = lights.Light(self.config_dict[item])
+                    self.lights[name] = lights.Light(self.config_dict[item])
                 if 'sensor' in item.lower():
-                    self.sensors[item] = sensors.Sensor(self.config_dict[item])
+                    self.sensors[name] = sensors.Sensor(self.config_dict[item])
 
         return
+
+    def inventory(self):
+        print('Servos:')
+        for item in self.servos:
+            print('\t{}'.format(item))
+        print('Motors:')
+        for item in self.motors:
+            print('\t{}'.format(item))
+        print('Lights:')
+        for item in self.lights:
+            print('\t{}'.format(item))
+        print('Sensors:')
+        for item in self.sensors:
+            print('\t{}'.format(item))
 
