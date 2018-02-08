@@ -1,14 +1,14 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 #James Parks
 #02/07/18
 
 import os
 import json
 
-import servos
-import motors
-import lights
-import sensors
+import bot.servos as servos
+import bot.motors as motors
+import bot.lights as lights
+import bot.sensors as sensors
 
 
 class Bot(object):
