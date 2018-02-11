@@ -5,6 +5,7 @@
 
 class Servo(object):
     def __init__(self, pin):
+        self.pin = pin
         self.angle = 45
         return
 

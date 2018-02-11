@@ -5,6 +5,13 @@
 
 class Motor(object):
     def __init__(self, pin):
+        self.pin = pin
         self.direction = 1
         self.speed = 0
+        return
+
+    def forward(self, duration, speed):
+        return
+
+    def backward(self, duration, speed):
         return
