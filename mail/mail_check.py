@@ -107,7 +107,14 @@ class MailCheck(object):
         msg = email.message_from_string(raw)
         sender = email.utils.parseaddr(msg['From'])[-1]
         self._log(1, 'Sender: {}'.format(sender))
-        if sender == os.environ['AUTO_FROM']:
+
+        ## get addresses that we'll accept emails from
+        raw_addresses = os.environ['AUTO_FROM'].split(',')
+        acceptable_addresses = []
+        for addr in raw_addresses:
+            acceptable_addresses.append(addr.strip())
+
+        if sender in acceptable_addresses:
             self._log(6, 'passed sender test')
             if msg['Subject'].startswith(os.environ['AUTO_PREFIX']):
                 self._log(6, 'passed subject test')
