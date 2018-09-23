@@ -1,23 +1,10 @@
 # Servo Control
+import time 
 import wiringpi
- 
-# use 'GPIO naming'
-wiringpi.wiringPiSetupGpio()
- 
-# set #18 to be a PWM output
-wiringpi.pinMode(18, wiringpi.GPIO.PWM_OUTPUT)
- 
-# set the PWM mode to milliseconds stype
-wiringpi.pwmSetMode(wiringpi.GPIO.PWM_MODE_MS)
- 
-# divide down clock
-wiringpi.pwmSetClock(192)
-wiringpi.pwmSetRange(2000)
- 
+
 
 class Servo(object):
     def __init__(self, pin=18, rotMin=0.0, rotMax=180.0, pulseMin=50.0, pulseMax=250.0):
-        import wiringpi
         self.setup(pin, rotMin, rotMax, pulseMin, pulseMax)
 
     def setup(self, pin=18, rotMin=0.0, rotMax=180.0, pulseMin=50.0, pulseMax=250.0):
@@ -36,9 +23,18 @@ class Servo(object):
         wiringpi.pwmSetClock(192)
         wiringpi.pwmSetRange(2000)
 
-    def rotate(self, rotation):
+    def rotateTo(self, rotation):
         pulse = translate(rotation, self.rotMin, self.rotMax, self.pulseMin, self.pulseMax)
-        wiringpi.pmWrite(self.pin, pulse)
+        wiringpi.pwmWrite(int(self.pin), int(pulse))
+
+    def sweep(self, rotFrom, rotTo, delay):
+        self.rotateTo(rotFrom)
+        step = 1
+        if rotFrom > rotTo:
+            setp = -1
+        for i in range(rotFrom, rotTo, step):
+            self.rotateTo(i)
+            time.sleep(delay)
 
 def translate(value, leftMin, leftMax, rightMin, rightMax):
     # Figure out how 'wide' each range is
@@ -51,3 +47,13 @@ def translate(value, leftMin, leftMax, rightMin, rightMax):
     # Convert the 0-1 range into a value in the right range.
     return rightMin + (valueScaled * rightSpan)
 
+
+def testRotate():
+    myS = Servo()
+    for i in range(myS.minRot, myS.maxRot, 10):
+        myS.rotateTo(i)
+
+def testSweep():
+    myS = Servo()
+    myS.sweep(0, 90, 0.1)
+    myS.sweep(90, 0, 0.1)
