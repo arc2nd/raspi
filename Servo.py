@@ -4,10 +4,10 @@ import wiringpi
 
 
 class Servo(object):
-    def __init__(self, pin=18, rotMin=0.0, rotMax=180.0, pulseMin=50.0, pulseMax=250.0):
+    def __init__(self, pin=18, rotMin=0, rotMax=180, pulseMin=50, pulseMax=250):
         self.setup(pin, rotMin, rotMax, pulseMin, pulseMax)
 
-    def setup(self, pin=18, rotMin=0.0, rotMax=180.0, pulseMin=50.0, pulseMax=250.0):
+    def setup(self, pin=18, rotMin=0, rotMax=180, pulseMin=50, pulseMax=250):
         self.pin = pin
         self.rotMin = rotMin
         self.rotMax = rotMax
@@ -31,8 +31,8 @@ class Servo(object):
         self.rotateTo(rotFrom)
         step = 1
         if rotFrom > rotTo:
-            setp = -1
-        for i in range(rotFrom, rotTo, step):
+            step = -1
+        for i in range(int(rotFrom), int(rotTo), step):
             self.rotateTo(i)
             time.sleep(delay)
 
@@ -50,7 +50,8 @@ def translate(value, leftMin, leftMax, rightMin, rightMax):
 
 def testRotate():
     myS = Servo()
-    for i in range(myS.minRot, myS.maxRot, 10):
+    myS.rotateTo(myS.rotMin)
+    for i in range(myS.rotMin, myS.rotMax, 10):
         myS.rotateTo(i)
 
 def testSweep():
