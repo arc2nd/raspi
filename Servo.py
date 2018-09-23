@@ -58,3 +58,6 @@ def testSweep():
     myS = Servo()
     myS.sweep(0, 90, 0.1)
     myS.sweep(90, 0, 0.1)
+
+if __name__ == '__main__':
+    testSweep()
