@@ -1,5 +1,5 @@
 {
-    "claw_servo_pin": 1, 
+    "claw_servo_pin": 18, 
     "left_motor_pin": 2, 
     "right_motor_pin": 3,
     "head_light_pin": 4
