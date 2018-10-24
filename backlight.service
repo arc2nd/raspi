@@ -1,0 +1,12 @@
+[Unit]
+Description=Cycle the backlight level
+After=multi-user.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/pi/scripts/raspi/cycle_backlight.py &
+StandardOutput=syslog
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
