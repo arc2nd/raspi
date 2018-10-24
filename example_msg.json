@@ -1,0 +1,19 @@
+[
+    {
+        "servo": "id_string",
+        "position": 180
+    },
+    {
+        "light": "id_string", 
+        "red": 255,
+        "green": 255, 
+        "blue": 255
+    },   
+    {
+        "motor": "id_string", 
+        "rate": 100,
+        "direction": "forward" 
+    }
+]
+
+ 
