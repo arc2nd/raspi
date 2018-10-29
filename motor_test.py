@@ -5,17 +5,17 @@ import time
 import RPi.GPIO as GPIO
 
 """
-STBY = Pin 13 (GPIO #21)
+STBY = Pin 13 (GPIO #21) blue
 
 Motor A:
-PWMA = Pin 7 (GPIO #4)
-AIN2 = Pin 11 (GPIO #17)
-AIN1 = Pin 12 (GPIO #18)
+PWMA = Pin 7 (GPIO #4) white
+AIN2 = Pin 11 (GPIO #17) yellow
+AIN1 = Pin 12 (GPIO #18) orange
 
 Motor B:
-BIN1 = Pin 15 (GPIO #22)
-BIN2 = Pin 16 (GPIO #23)
-PWMB = Pin 18 (GPIO #24)
+BIN1 = Pin 15 (GPIO #22) green/teal
+BIN2 = Pin 16 (GPIO #23) brown
+PWMB = Pin 18 (GPIO #24) purple
 """
 
 """
