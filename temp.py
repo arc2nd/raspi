@@ -1,11 +1,19 @@
 #!/usr/bin/env python
 
+import os
 import time
 import socket
 import getpass
 import requests
+import commands
 
-from gpiozero import CPUTemperature
+global GENCMD
+try:
+    from gpiozero import CPUTemperature
+    GENCMD = False
+except:
+    GENCMD = True
+
 
 def get_ip():
     try:
@@ -37,7 +45,12 @@ def get_user():
 
 
 def send_temp():
-    cpu = CPUTemperature()
+    global GENCMD
+    if not GENCMD:
+        try:
+            cpu = CPUTemperature()
+        except:
+            GENCMD = True
 
     url = 'http://192.168.0.3:8280/Bean'
     my_app = 'temperature'
@@ -47,7 +60,13 @@ def send_temp():
     user = get_user()
 
     while True:
-        my_msg = cpu.temperature
+        if not GENCMD:
+            my_msg = cpu.temperature
+        else:
+            if os.path.exists('/opt/vc/bin/vcgencmd'):
+                my_msg = commands.getoutput('/opt/vc/bin/vcgencmd measure_temp').split('=')[-1].split("'C")[0]
+            else:
+                print('Can\'t log temp')
         data_dict = {'app': my_app, 
                      'level': log_level, 
                      'hostname': hostname, 
