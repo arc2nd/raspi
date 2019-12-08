@@ -56,6 +56,7 @@ STBY = 13
 
 # Declare the GPIO settings
 GPIO.setmode(GPIO.BOARD)
+GPIO.setwarnings(False)
 
 # set up GPIO pins
 GPIO.setup(PWMA, GPIO.OUT) # Connected to PWMA
@@ -66,10 +67,12 @@ GPIO.setup(BIN1, GPIO.OUT) # Connected to BIN1
 GPIO.setup(BIN2, GPIO.OUT) # Connected to BIN2
 GPIO.setup(PWMB, GPIO.OUT) # Connected to PWMB
 
-# Drive the motor clockwise
+GPIO.output(STBY, GPIO.HIGH)
+
+# Drive the motor counterclockwise
 # Motor A:
-GPIO.output(AIN1, GPIO.HIGH) # Set AIN1
-GPIO.output(AIN2, GPIO.LOW) # Set AIN2
+GPIO.output(AIN1, GPIO.LOW) # Set AIN1
+GPIO.output(AIN2, GPIO.HIGH) # Set AIN2
 # Motor B:
 GPIO.output(BIN1, GPIO.HIGH) # Set BIN1
 GPIO.output(BIN2, GPIO.LOW) # Set BIN2
@@ -83,28 +86,8 @@ GPIO.output(PWMB, GPIO.HIGH) # Set PWMB
 # Disable STBY (standby)
 GPIO.output(STBY, GPIO.HIGH)
 
-# Wait 5 seconds
-time.sleep(5)
-
-# Drive the motor counterclockwise
-# Motor A:
-GPIO.output(AIN1, GPIO.LOW) # Set AIN1
-GPIO.output(AIN2, GPIO.HIGH) # Set AIN2
-# Motor B:
-GPIO.output(BIN1, GPIO.LOW) # Set BIN1
-GPIO.output(BIN2, GPIO.HIGH) # Set BIN2
-
-# Set the motor speed
-# Motor A:
-GPIO.output(PWMA, GPIO.HIGH) # Set PWMA
-# Motor B:
-GPIO.output(PWMB, GPIO.HIGH) # Set PWMB
-
-# Disable STBY (standby)
-GPIO.output(STBY, GPIO.HIGH)
-
-# Wait 5 seconds
-time.sleep(5)
+# Wait x seconds
+time.sleep(2)
 
 # Reset all the GPIO pins by setting them to LOW
 GPIO.output(AIN1, GPIO.LOW) # Set AIN1
